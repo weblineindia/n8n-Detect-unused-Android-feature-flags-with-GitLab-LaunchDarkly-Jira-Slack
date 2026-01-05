@@ -1,96 +1,104 @@
-# Detect unused Android feature flags with GitLab, LaunchDarkly, Jira & Slack
 
-This n8n automation detects unused (“dead”) feature flags in an Android Kotlin/Java codebase by comparing your GitLab repository code against LaunchDarkly’s feature flag list. It logs results in Google Sheets, creates Jira cleanup tickets, and sends Slack alerts automatically. :contentReference[oaicite:1]{index=1}
+# Detect Unused Android Feature Flags with GitLab, LaunchDarkly, Jira & Slack
+
+This n8n automation detects unused (“dead”) feature flags in an Android Kotlin/Java codebase by comparing feature flag usage in your GitLab repository against the list of flags configured in LaunchDarkly.
+The workflow logs results in Google Sheets, creates Jira cleanup tickets, and sends Slack alerts automatically to reduce technical debt.
 
 ---
 
 ## Who’s It For
 
-- Android engineering teams using Kotlin/Java.
-- Teams managing feature flags in LaunchDarkly.
-- DevOps/QA teams wanting to reduce technical debt from stale flags. :contentReference[oaicite:2]{index=2}
+* Android engineering teams using Kotlin or Java
+* Teams managing feature flags with LaunchDarkly
+* DevOps and QA teams aiming to reduce stale feature flags and technical debt
 
 ---
 
 ## How It Works
 
-1. **Weekly Trigger** runs the process.
-2. **GitLab Node** fetches repository code.
-3. **Regex Extraction** finds all feature flags in code.
-4. **LaunchDarkly API** retrieves all configured flags.
-5. **Comparison Logic** marks flags as “dead” if unused in code and archived or off in production.
-6. **Google Sheets** stores flagged results.
-7. **Jira** creates a ticket for each dead flag.
-8. **Slack** notifies the team. :contentReference[oaicite:3]{index=3}
+1. **Weekly Schedule Trigger** starts the workflow.
+2. **GitLab Node** fetches repository files.
+3. **Regex Extraction** scans the codebase to detect feature flag references.
+4. **LaunchDarkly API** retrieves all existing feature flags.
+5. **Comparison Logic** identifies “dead” flags that are:
+
+   * Not referenced in code, and
+   * Archived or disabled in production
+6. **Google Sheets** logs all detected unused flags.
+7. **Jira** creates cleanup tickets for each dead flag.
+8. **Slack** sends a summary notification to the team.
 
 ---
 
 ## How to Set Up
 
 1. Import the workflow JSON into your n8n instance.
-2. Connect credentials for:
-   - GitLab OAuth2
-   - Google Sheets
-   - Jira
-   - Slack webhook URL
-3. Update:
-   - GitLab repo details in the GitLab node.
-   - LaunchDarkly API key in the HTTP Request node.
-   - Google Sheet ID in the Google Sheets node.
-   - Jira project & issue type in the Jira node.
-   - Slack message formatting in the Slack node.
-4. Activate the workflow. :contentReference[oaicite:4]{index=4}
+2. Configure credentials for:
+
+   * GitLab (OAuth2 or personal access token)
+   * Google Sheets
+   * Jira
+   * Slack (Incoming Webhook or Bot token)
+3. Update the following nodes:
+
+   * **GitLab Node** – repository URL, branch, and file paths
+   * **HTTP Request Node** – LaunchDarkly API key
+   * **Google Sheets Node** – spreadsheet ID and target sheet
+   * **Jira Node** – project key, issue type, and required fields
+   * **Slack Node** – channel and message format
+4. Activate the workflow.
 
 ---
 
 ## Requirements
 
-- n8n (self-hosted or cloud)
-- GitLab repository with Kotlin/Java code
-- LaunchDarkly account with API token
-- Google Sheets API access
-- Jira API access
-- Slack incoming webhook :contentReference[oaicite:5]{index=5}
+* n8n (cloud or self-hosted)
+* GitLab repository with Android Kotlin/Java code
+* LaunchDarkly account with an API token
+* Google Sheets API access
+* Jira API access
+* Slack workspace with webhook or bot permissions
 
 ---
 
 ## How to Customize
 
-- Change regex pattern in the “Detect flags” node to match your feature flag naming convention.
-- Adjust dead flag logic (e.g., treat test or staging flags differently).
-- Modify Slack message content to include more details like the flag description from LaunchDarkly.
-- Add email notifications for broader distribution using Gmail or SMTP nodes. :contentReference[oaicite:6]{index=6}
+* Update the regex pattern to match your feature flag naming convention
+* Change the dead-flag criteria (e.g., treat staging-only flags differently)
+* Enrich Slack messages with flag metadata from LaunchDarkly
+* Add email notifications using Gmail or SMTP nodes
+* Adjust the schedule (daily, bi-weekly, or on-demand)
 
 ---
 
 ## Add-Ons
 
-- **Email Alerts** via Gmail/SMTP for additional notifications.
-- **GitLab Merge Requests** to remove dead flags automatically.
-- **Confluence Integration** to document flag cleanup history. :contentReference[oaicite:7]{index=7}
+* **Email Alerts** – Notify stakeholders via Gmail or SMTP
+* **Automatic Cleanup PRs** – Create GitLab merge requests to remove dead flags
+* **Confluence Integration** – Maintain documentation for feature flag lifecycle and cleanup history
 
 ---
 
 ## Use Case Examples
 
-- Weekly automated cleanup alerts for large engineering teams.
-- Maintain a clean feature flag list in high-traffic apps.
-- Compliance-driven projects requiring feature flag lifecycle tracking. :contentReference[oaicite:8]{index=8}
+* Weekly automated reports highlighting unused feature flags
+* Maintaining a clean and manageable flag list in large Android apps
+* Supporting compliance or audit requirements around feature flag usage
 
 ---
 
 ## Common Troubleshooting
 
-| Issue                                | Possible Cause                                | Solution                                                 |
-| ------------------------------------ | --------------------------------------------- | -------------------------------------------------------- | ------------------------------------- |
-| Workflow fails at GitLab node        | Invalid repo path or missing OAuth scope      | Update repo path & check GitLab OAuth permissions        |
-| LaunchDarkly API request returns 401 | Invalid or expired API key                    | Generate a new API key in LaunchDarkly & update node     |
-| Google Sheets node fails             | Wrong Sheet ID or missing sharing permissions | Confirm Sheet ID and share with connected Google account |
-| Jira ticket not created              | Missing required fields                       | Set project key, issue type, and summary in Jira node    |
-| Slack alert not sent                 | Webhook URL invalid or revoked                | Regenerate Slack webhook and update in node              | :contentReference[oaicite:9]{index=9} |
+| Issue                        | Possible Cause                           | Solution                                                 |
+| ---------------------------- | ---------------------------------------- | -------------------------------------------------------- |
+| GitLab node fails            | Invalid repo path or missing permissions | Verify repository path and OAuth scopes                  |
+| LaunchDarkly API returns 401 | Invalid or expired API key               | Generate a new API key and update the workflow           |
+| Google Sheets write fails    | Incorrect Sheet ID or permissions        | Confirm Sheet ID and share it with the connected account |
+| Jira issue not created       | Missing required fields                  | Set project key, issue type, and summary correctly       |
+| Slack alert not sent         | Invalid or revoked webhook URL           | Regenerate and update the Slack webhook                  |
 
 ---
 
 ## Need Help?
 
-If you’d like help setting up and customizing this workflow for your exact repo, flag rules, and team notification preferences — including regex adjustments, extra reporting, or adding automatic cleanup PRs — our n8n automation team at **WeblineIndia** is happy to assist! :contentReference[oaicite:10]{index=10}
+If you’d like help configuring or extending this workflow—such as refining regex detection, adding detailed reporting, or enabling automatic cleanup merge requests—our **n8n automation experts at WeblineIndia** are happy to assist.
